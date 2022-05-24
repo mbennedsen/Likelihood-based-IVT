@@ -254,14 +254,17 @@ elseif dgp_num == 3
         end
 
         %% AVAR calcs
-        bval_hat = max(1,2-H_hat);
+        bval_hat = max(1,2-H_hat); % Ensure asymptotic finiteness of V
         
         V = cov(s_boot/N^(bval_hat/2));
         H = -1*hessian/n;
         G_inv = (H\V)/H;
 
-        std_err = [exp(p_tmp2(1));exp(p_tmp2(2));exp(p_tmp2(3))].*sqrt(diag(G_inv))/n^(1-bval_hat/2);
-
+        if exp(p_tmp2(2))<1 % Asymptotic standard errors not valid in long memory case.
+            std_err = nan(size(p_tmp2));
+        else
+            std_err = [exp(p_tmp2(1));exp(p_tmp2(2));exp(p_tmp2(3))].*sqrt(diag(G_inv))/sqrt(n);
+        end
 
         if nargout>3
             aic = cl + trace( V\H );
@@ -452,14 +455,17 @@ elseif dgp_num == 6
 
         %% AVAR calcs
         
-        bval_hat = max(1,2-H_hat);
+        bval_hat = max(1,2-H_hat); % Ensure asymptotic finiteness of V
         
         V = cov(s_boot/N^(bval_hat/2));
         H = -1*hessian/n;
         G_inv = (H\V)/H;
 
-        std_err = [exp(p_tmp2(1));sigmoid(p_tmp2(2))^2*exp(-p_tmp2(2));exp(p_tmp2(3));exp(p_tmp2(4))].*sqrt(diag(G_inv))/n^(1-bval_hat/2);
-
+        if exp(p_tmp2(3))<1 % Asymptotic standard errors not valid in long memory case.
+            std_err = nan(size(p_tmp2));
+        else
+            std_err = [exp(p_tmp2(1));sigmoid(p_tmp2(2))^2*exp(-p_tmp2(2));exp(p_tmp2(3));exp(p_tmp2(4))].*sqrt(diag(G_inv))/sqrt(n);
+        end
 
         if nargout>3
             aic = cl + trace( V\H );
